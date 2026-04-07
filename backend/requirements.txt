@@ -1,0 +1,31 @@
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+python-multipart==0.0.20
+python-dotenv==1.0.1
+
+# LLM & Embeddings
+groq==0.13.1
+sentence-transformers==3.3.1
+
+# Vector DB
+pinecone-client==5.0.1
+
+# Document processing
+PyPDF2==3.0.1
+pypdf==5.1.0
+Pillow==11.1.0
+pytesseract==0.3.13
+
+# Text splitting / chunking
+langchain-text-splitters
+
+# Vision Pipeline Requirements
+torchxrayvision
+torch
+torchvision
+scikit-image
+sentencepiece
+protobuf
+ultralytics
+timm
+opencv-python-headless

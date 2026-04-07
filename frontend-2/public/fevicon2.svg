@@ -1,0 +1,12 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect x="0" y="0" width="64" height="64" rx="12" fill="#1F7A75"></rect>
+  
+  <!-- ECG Line -->
+  <path d="M10 34 
+       L22 34 
+       L28 24 
+       L34 44 
+       L40 30 
+       L54 30" fill="none" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
