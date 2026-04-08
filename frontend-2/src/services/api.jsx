@@ -38,11 +38,13 @@ export const uploadChatDocument = async (file) => {
  *
  * @param {string}      message    - User's query text
  * @param {string|null} sessionId  - From uploadChatDocument(); null = general Q&A
- * @returns {Promise<{answer: string, used_rag: boolean}>}
+ * @param {Array}       history    - Prior turns [{role:"user"|"assistant", content:"..."}]
+ * @returns {Promise<string>}      - The AI answer string
  */
-export const analyzeChatMsg = async (message, sessionId = null) => {
+export const analyzeChatMsg = async (message, sessionId = null, history = []) => {
   const body = { message };
   if (sessionId) body.session_id = sessionId;
+  if (history && history.length > 0) body.history = history;
 
   const res = await fetch(`${BASE_URL}/api/chat/message`, {
     method: "POST",
@@ -59,52 +61,8 @@ export const analyzeChatMsg = async (message, sessionId = null) => {
   return data.answer; // keep same return shape as the mock so Chat.jsx works unchanged
 };
 
-// ─── Other feature stubs (kept as-is — replace with real endpoints as needed) ─
 
-export const analyzeXrayImage = async (file) => {
-  const formData = new FormData();
-  formData.append("file", file);
-
-  const res = await fetch(`${BASE_URL}/api/xray/analyze`, {
-    method: "POST",
-    body: formData,
-  });
-
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.detail || `X-Ray analysis failed (${res.status})`);
-  }
-
-  return res.json();
-};
-export const chatWithXray = async (file, message, history) => {
-  const formData = new FormData();
-  formData.append("file", file);
-  formData.append("message", message);
-  formData.append("history", JSON.stringify(history || []));
-
-  const res = await fetch(`${BASE_URL}/api/xray/chat`, {
-    method: "POST",
-    body: formData,
-  });
-
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.detail || `Chat failed (${res.status})`);
-  }
-
-  return res.json();
-};
-
-export const analyzeXrayRisk = async (data) => {
-  const res = await fetch(`${BASE_URL}/api/xray/risk`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-  if (!res.ok) throw new Error("Risk analysis failed");
-  return res.json();
-};
+// ─── Other features ────────────────────────────────────────────────────────────
 
 export const assessMedicalUrgency = async (form, file) => {
   const formData = new FormData();

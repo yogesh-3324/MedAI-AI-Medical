@@ -24,6 +24,7 @@ router = APIRouter()
 class MessageRequest(BaseModel):
     message: str
     session_id: Optional[str] = None   # present only when a file was previously uploaded
+    history: Optional[list] = None     # prior turns [{"role":"user"|"assistant","content":"..."}]
 
 
 class UploadResponse(BaseModel):
@@ -112,6 +113,7 @@ async def send_message(request: MessageRequest):
         result = answer_query(
             query=request.message.strip(),
             session_id=request.session_id,
+            history=request.history,
         )
     except Exception as e:
         logger.exception("Error generating response: %s", e)

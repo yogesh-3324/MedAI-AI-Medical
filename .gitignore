@@ -1,0 +1,63 @@
+# Environment variables (NEVER commit secrets)
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+*.pyc
+venv/
+env/
+.venv/
+
+# ML Model files (large binaries)
+*.pth
+*.pt
+*.h5
+*.pkl
+*.onnx
+*.bin
+models/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnp/
+.pnp.js
+
+# Build output
+dist/
+build/
+.next/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Logs
+*.log
+logs/
+
+# Uploads / temp files
+uploads/
+tmp/
+temp/

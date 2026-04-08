@@ -7,7 +7,6 @@ import Diet from './pages/Diet'
 import DoctorCheck from './pages/DoctorCheck'
 import DrugChecker from './pages/DrugChecker'
 import FoodSafety from './pages/FoodSafety'
-import XrayAnalyzer from './pages/XrayAnalyzer'
 import ConsultationReport from './pages/ConsultationReport'
 import { SignedIn, SignedOut, SignIn, useAuth } from '@clerk/clerk-react'
 
@@ -145,7 +144,6 @@ function App() {
               <Route path="/doctor"      element={<ProtectedRoute><DoctorCheck /></ProtectedRoute>} />
               <Route path="/drug"        element={<ProtectedRoute><DrugChecker /></ProtectedRoute>} />
               <Route path="/food"        element={<ProtectedRoute><FoodSafety /></ProtectedRoute>} />
-              <Route path="/xray"        element={<ProtectedRoute><XrayAnalyzer /></ProtectedRoute>} />
               <Route path="/consultation" element={<ProtectedRoute><ConsultationReport /></ProtectedRoute>} />
             </Routes>
           </div>

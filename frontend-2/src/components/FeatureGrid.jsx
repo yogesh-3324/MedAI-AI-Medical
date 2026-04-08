@@ -3,7 +3,6 @@ import FeatureCard from "./FeatureCard";
 
 const cards = [
   { id: "chat", icon: "💬", title: "Chat with MedAI", bullets: ["Analyze medical documents", "Analyze medical reports & test reports", "Analyze images for disease identification"] },
-  { id: "xray", icon: "🩻", title: "X-ray Analyzer", desc: "Upload your X-ray images and receive quick, intelligent insights within seconds." },
   { id: "doctor", icon: "🏥", title: "Do I Need A Doctor?", desc: "AI analyzes your inputs to estimate the level of medical risk, helping you take the right action at the right time." },
   { id: "diet", icon: "🥗", title: "Make My Diet", desc: "Personalized diet plan based on your current medical condition with recommendations on what to eat and avoid." },
   { id: "food", icon: "🍽️", title: "Is It Safe to Eat?", desc: "Tells whether a meal is safe for your current medical condition before you consume it." },

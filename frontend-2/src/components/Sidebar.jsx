@@ -9,7 +9,6 @@ export default function Sidebar({ isOpen, setIsOpen }) {
   const navItems = [
     { path: "/", label: "Home", icon: "🏠" },
     { path: "/chat", label: "Chat with MedAI", icon: "💬" },
-    { path: "/xray", label: "X-ray Analyzer", icon: "🩻" },
     { path: "/doctor", label: "Do I Need A Doctor?", icon: "🏥" },
     { path: "/diet", label: "Make My Diet", icon: "🥗" },
     { path: "/food", label: "Is It Safe to Eat?", icon: "🍽️" },

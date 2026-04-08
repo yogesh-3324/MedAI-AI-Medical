@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import uvicorn
 
-from routes import chat, xray, triage, diet, food, drug, consultation
+from routes import chat, triage, diet, food, drug, consultation
 
 app = FastAPI(
     title="MedAI RAG Backend",
@@ -23,8 +23,6 @@ app.add_middleware(
 # Register chat routes under /api/chat
 app.include_router(chat.router, prefix="/api/chat", tags=["chat"])
 
-# Register xray routes under /api/xray
-app.include_router(xray.router, prefix="/api/xray", tags=["xray"])
 
 # Register triage routes under /api/triage
 app.include_router(triage.router, prefix="/api/triage", tags=["triage"])

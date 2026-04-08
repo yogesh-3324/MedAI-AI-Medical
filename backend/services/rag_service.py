@@ -64,7 +64,11 @@ def ingest_document(filename: str, file_bytes: bytes) -> dict:
     }
 
 
-def answer_query(query: str, session_id: str | None = None) -> dict:
+def answer_query(
+    query: str,
+    session_id: str | None = None,
+    history: list | None = None,
+) -> dict:
     """
     RAG query pipeline.
 
@@ -72,6 +76,9 @@ def answer_query(query: str, session_id: str | None = None) -> dict:
         query:      The user's question.
         session_id: If provided, retrieves context from the uploaded document.
                     If None, falls back to pure LLM (no retrieval).
+        history:    Optional list of prior conversation turns in the format
+                    [{"role": "user"|"assistant", "content": "..."}].
+                    Passed to the LLM so it remembers prior context (max 15 turns).
 
     Returns:
         {
@@ -95,11 +102,12 @@ def answer_query(query: str, session_id: str | None = None) -> dict:
         )
         used_rag = bool(context_chunks)
 
-    # Step 3 — Generate answer via Groq LLaMA
-    answer = generate_response(query, context_chunks)
+    # Step 3 — Generate answer via Groq LLaMA (with conversation history)
+    answer = generate_response(query, context_chunks, history=history)
 
     return {
         "answer": answer,
         "context_chunks": context_chunks,
         "used_rag": used_rag,
     }
+

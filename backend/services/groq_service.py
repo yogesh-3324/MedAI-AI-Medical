@@ -5,7 +5,7 @@ Model: llama3-8b-8192 (fast, free-tier-friendly)
 """
 
 import logging
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 from config import settings
 
@@ -27,6 +27,8 @@ Guidelines:
 def build_rag_prompt(query: str, context_chunks: List[Dict]) -> str:
     """
     Build a RAG prompt by injecting retrieved context before the user question.
+    When there is context, returns an enriched string for the final user turn.
+    When there is no context, just returns the raw query string.
     """
     if context_chunks:
         context_text = "\n\n---\n\n".join(
@@ -47,13 +49,21 @@ def build_rag_prompt(query: str, context_chunks: List[Dict]) -> str:
     return prompt
 
 
-def generate_response(query: str, context_chunks: List[Dict]) -> str:
+def generate_response(
+    query: str,
+    context_chunks: List[Dict],
+    history: Optional[List[Dict]] = None,
+) -> str:
     """
     Send the RAG-augmented prompt to Groq and return the model's reply.
 
     Args:
-        query:          The user's message.
+        query:          The user's current message.
         context_chunks: Retrieved chunks from Pinecone (may be empty).
+        history:        Optional list of previous turns in the format
+                        [{"role": "user"|"assistant", "content": "..."}].
+                        These are prepended to the messages list so the model
+                        has full conversation context (max 15 turns).
 
     Returns:
         The assistant's text response.
@@ -64,20 +74,35 @@ def generate_response(query: str, context_chunks: List[Dict]) -> str:
         raise RuntimeError("groq not installed. Run: pip install groq")
 
     client = Groq(api_key=settings.GROQ_API_KEY)
-    user_message = build_rag_prompt(query, context_chunks)
+
+    # Build the final user message (may include RAG context)
+    final_user_content = build_rag_prompt(query, context_chunks)
+
+    # Compose message list: system → history → current user message
+    messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+
+    if history:
+        # Validate and sanitise — only keep role/content, cap at 15 turns
+        safe_history = []
+        for turn in history[-15:]:
+            role = turn.get("role", "")
+            content = turn.get("content", "")
+            if role in ("user", "assistant") and content:
+                safe_history.append({"role": role, "content": content})
+        messages.extend(safe_history)
+
+    messages.append({"role": "user", "content": final_user_content})
 
     logger.info(
-        "Sending request to Groq (%s). Context chunks: %d.",
+        "Sending request to Groq (%s). History turns: %d, Context chunks: %d.",
         settings.GROQ_MODEL,
+        len(history) if history else 0,
         len(context_chunks),
     )
 
     completion = client.chat.completions.create(
         model=settings.GROQ_MODEL,
-        messages=[
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": user_message},
-        ],
+        messages=messages,
         temperature=0.4,
         max_tokens=1024,
         top_p=0.9,
