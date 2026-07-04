@@ -13,7 +13,7 @@ from fastapi import APIRouter, UploadFile, File, Form, HTTPException, status
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
-from services.rag_service import ingest_document, answer_query
+from services.rag_service import ingest_document, answer_query, answer_query_with_web_search
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -23,8 +23,9 @@ router = APIRouter()
 
 class MessageRequest(BaseModel):
     message: str
-    session_id: Optional[str] = None   # present only when a file was previously uploaded
-    history: Optional[list] = None     # prior turns [{"role":"user"|"assistant","content":"..."}]
+    session_id: Optional[str] = None     # present only when a file was previously uploaded
+    history: Optional[list] = None       # prior turns [{"role":"user"|"assistant","content":"..."}]
+    use_web_search: bool = False         # when True, answer via live web search instead of RAG
 
 
 class UploadResponse(BaseModel):
@@ -38,6 +39,8 @@ class UploadResponse(BaseModel):
 class MessageResponse(BaseModel):
     answer: str
     used_rag: bool
+    used_web_search: bool = False
+    sources: list = []
 
 
 # ─── Endpoints ────────────────────────────────────────────────────────────────
@@ -110,11 +113,19 @@ async def send_message(request: MessageRequest):
         )
 
     try:
-        result = answer_query(
-            query=request.message.strip(),
-            session_id=request.session_id,
-            history=request.history,
-        )
+        if request.use_web_search:
+            # ── Web search path ──────────────────────────────────────────────
+            result = answer_query_with_web_search(
+                query=request.message.strip(),
+                history=request.history,
+            )
+        else:
+            # ── Existing RAG / pure LLM path ─────────────────────────────────
+            result = answer_query(
+                query=request.message.strip(),
+                session_id=request.session_id,
+                history=request.history,
+            )
     except Exception as e:
         logger.exception("Error generating response: %s", e)
         raise HTTPException(
@@ -125,4 +136,6 @@ async def send_message(request: MessageRequest):
     return MessageResponse(
         answer=result["answer"],
         used_rag=result["used_rag"],
+        used_web_search=result.get("used_web_search", False),
+        sources=result.get("sources", []),
     )

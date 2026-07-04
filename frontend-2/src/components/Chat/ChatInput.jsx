@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 
 // ── File type helpers ─────────────────────────────────────────────────────────
 function getFileTypeLabel(filename) {
@@ -202,8 +202,58 @@ export default function ChatInput({
   input, setInput, send, loading,
   showUpload, setShowUpload, handleUpload,
   stagedFile, uploadStatus, onDismissStagedFile,
+  webSearch, setWebSearch,
 }) {
   const fileRef = useRef(null);
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef(null);
+
+  useEffect(() => {
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.continuous = true;
+      recognitionRef.current.interimResults = true;
+      // 'en-IN' supports both English and Hindi accents relatively well in Chrome
+      recognitionRef.current.lang = 'en-IN'; 
+
+      recognitionRef.current.onresult = (event) => {
+        let finalTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            finalTranscript += event.results[i][0].transcript;
+          }
+        }
+        if (finalTranscript) {
+          // Append the text directly into the input text
+          setInput((prev) => prev + (prev ? ' ' : '') + finalTranscript);
+        }
+      };
+
+      recognitionRef.current.onerror = (event) => {
+        console.error("Speech recognition error", event.error);
+        setIsListening(false);
+      };
+
+      recognitionRef.current.onend = () => {
+        setIsListening(false);
+      };
+    }
+  }, [setInput]);
+
+  const toggleListen = () => {
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+    } else {
+      if (recognitionRef.current) {
+        recognitionRef.current.start();
+        setIsListening(true);
+      } else {
+        alert("Speech recognition is not supported in your browser.");
+      }
+    }
+  };
 
   return (
     <>
@@ -214,6 +264,33 @@ export default function ChatInput({
           uploadStatus={uploadStatus}
           onDismiss={onDismissStagedFile}
         />
+      )}
+
+      {/* Web search active banner */}
+      {webSearch && (
+        <div style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 6,
+          marginBottom: 6,
+          padding: "5px 12px",
+          background: "rgba(59,130,246,0.08)",
+          border: "1px solid rgba(59,130,246,0.25)",
+          borderRadius: 10,
+          fontSize: 11.5,
+          color: "#2563eb",
+          fontWeight: 500,
+          animation: "fadeUp 0.2s ease both",
+        }}>
+          {/* Globe icon */}
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="2" y1="12" x2="22" y2="12" />
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+          </svg>
+          Web Search is <strong style={{ color: "#1d4ed8" }}>ON</strong>
+          &nbsp;— answers will use live internet data
+        </div>
       )}
 
       {/* Upload type picker dropdown */}
@@ -282,8 +359,75 @@ export default function ChatInput({
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => e.key === "Enter" && !e.shiftKey && send()}
           placeholder="Type your health question…"
-          style={{ flex: 1, border: "none", background: "transparent", padding: "8px 4px" }}
+          style={{ flex: 1, border: "none", background: "transparent", padding: "8px 4px", minWidth: 0 }}
         />
+
+        {/* Microphone Button */}
+        <button
+          onClick={toggleListen}
+          title={isListening ? "Stop listening" : "Start voice input (Hindi/English)"}
+          style={{
+            background: isListening ? "#fee2e2" : "none",
+            border: "none",
+            cursor: "pointer",
+            padding: "8px",
+            borderRadius: "50%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: isListening ? "#ef4444" : "#4a6274",
+            transition: "all 0.2s",
+            flexShrink: 0
+          }}
+        >
+          {isListening ? (
+             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+              <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+            </svg>
+          ) : (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+              <line x1="12" y1="19" x2="12" y2="23"></line>
+              <line x1="8" y1="23" x2="16" y2="23"></line>
+            </svg>
+          )}
+        </button>
+
+        {/* ──── Web Search Toggle Button ─────────────────────────────── */}
+        <button
+          onClick={() => setWebSearch(s => !s)}
+          title={webSearch ? "Web Search ON — click to disable" : "Enable Web Search (live internet answers)"}
+          style={{
+            background: webSearch ? "rgba(59,130,246,0.15)" : "none",
+            border: "none",
+            cursor: "pointer",
+            padding: "8px",
+            borderRadius: "50%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: webSearch ? "#3b82f6" : "#4a6274",
+            transition: "all 0.2s",
+            flexShrink: 0,
+            boxShadow: webSearch ? "0 0 0 3px rgba(59,130,246,0.2)" : "none",
+          }}
+          onMouseEnter={e => {
+            if (!webSearch) e.currentTarget.style.color = "#3b82f6";
+          }}
+          onMouseLeave={e => {
+            if (!webSearch) e.currentTarget.style.color = "#4a6274";
+          }}
+        >
+          {/* Globe SVG icon */}
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="2" y1="12" x2="22" y2="12" />
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+          </svg>
+        </button>
 
         <button
           onClick={send}

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import FileUpload from "../Upload/FileUpload";
 import ImageUpload from "../Upload/ImageUpload";
+import AutocompleteInput from "./AutocompleteInput";
 
 export default function DrugCheckerForm({ 
   drugInput, setDrugInput, drugs, setDrugs, 
@@ -25,10 +26,18 @@ export default function DrugCheckerForm({
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-      <div className="fade-up-1">
+      <div className="fade-up-1" style={{ position: "relative", zIndex: 30 }}>
         <label style={{ fontSize: 14, fontWeight: 600, color: "#0d1f2d", display: "block", marginBottom: 8 }}>Medicines & Dose <span style={{ color: "#ef4444" }}>*</span></label>
         <div style={{ display: "flex", gap: 10 }}>
-          <input className="input-field" placeholder="Medicine name" value={drugInput} onChange={e => setDrugInput(e.target.value)} style={{ flex: 2 }} />
+          <div style={{ flex: 2 }}>
+            <AutocompleteInput 
+              className="input-field" 
+              placeholder="Medicine name" 
+              value={drugInput} 
+              onChange={e => setDrugInput(e.target.value)} 
+              fieldType="medicine or drug name"
+            />
+          </div>
           <input className="input-field" placeholder="Dose (Mg)" value={doseInput} onChange={e => setDoseInput(e.target.value)} onKeyDown={e => e.key === "Enter" && addDrug()} style={{ flex: 1 }} />
           <button className="btn-outline" onClick={addDrug} style={{ flexShrink: 0, padding: "12px 20px" }}>Add</button>
         </div>
@@ -46,12 +55,18 @@ export default function DrugCheckerForm({
         </div>
       </div>
 
-      <div className="fade-up-2">
+      <div className="fade-up-2" style={{ position: "relative", zIndex: 20 }}>
         <label style={{ fontSize: 14, fontWeight: 600, color: "#0d1f2d", display: "block", marginBottom: 8 }}>Allergies <span style={{ color: "#9bb3b3", fontWeight: 400 }}>(optional)</span></label>
-        <input className="input-field" placeholder="e.g. Penicillin, Sulfa drugs…" value={allergies} onChange={e => setAllergies(e.target.value)} />
+        <AutocompleteInput 
+          className="input-field" 
+          placeholder="e.g. Penicillin, Sulfa drugs…" 
+          value={allergies} 
+          onChange={e => setAllergies(e.target.value)} 
+          fieldType="allergies"
+        />
       </div>
 
-      <div className="fade-up-2">
+      <div className="fade-up-2" style={{ position: "relative", zIndex: 10 }}>
         <label style={{ fontSize: 14, fontWeight: 600, color: "#0d1f2d", display: "block", marginBottom: 8 }}>Upload Reports <span style={{ color: "#9bb3b3", fontWeight: 400 }}>(optional)</span></label>
         <FileUpload file={reportFile} setFile={setReportFile} label="📎 Attach prescription/report" style={{ padding: "16px 24px" }} />
       </div>

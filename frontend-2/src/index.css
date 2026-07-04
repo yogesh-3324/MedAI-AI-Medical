@@ -35,6 +35,189 @@ body.dark-mode .card-hover > div[style*="background: #fff"], body.dark-mode .car
 body.dark-mode .msg-ai { background: var(--soft); border: 1px solid #334155; }
 h1,h2,h3,.display{font-family:'DM Serif Display',serif;}
 
+.home-hero {
+  padding: 80px 24px 60px;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(14,163,191,0.08) 0%, rgba(240,247,247,0.85) 35%, rgba(255,255,255,0.95) 100%);
+}
+.home-hero::before,
+.home-hero::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.45;
+  pointer-events: none;
+}
+.home-hero::before {
+  width: 420px;
+  height: 420px;
+  top: -120px;
+  left: -100px;
+  background: radial-gradient(circle, rgba(14,163,191,0.25) 0%, transparent 60%);
+}
+.home-hero::after {
+  width: 520px;
+  height: 520px;
+  bottom: -180px;
+  right: -120px;
+  background: radial-gradient(circle, rgba(15,58,99,0.14) 0%, transparent 55%);
+}
+.home-hero-inner {
+  max-width: 1240px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 48px;
+  align-items: center;
+}
+.hero-column {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(14,163,191,0.08);
+  border: 1px solid rgba(14,163,191,0.16);
+  color: var(--teal);
+  padding: 10px 20px;
+  border-radius: 999px;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+.hero-eyebrow-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--teal);
+}
+.hero-title {
+  font-size: clamp(42px, 5vw, 64px);
+  line-height: 0.98;
+  color: var(--dark);
+  margin-bottom: 24px;
+  max-width: 680px;
+}
+.hero-copy {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(18px, 2vw, 22px);
+  color: var(--mid);
+  line-height: 1.8;
+  max-width: 620px;
+  margin-bottom: 0;
+}
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+}
+.hero-pill-group {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #fff;
+  border: 1px solid #e2ecec;
+  border-radius: 999px;
+  padding: 10px 18px;
+  box-shadow: 0 14px 32px rgba(15,58,99,0.08);
+}
+.hero-pill-stack {
+  display: flex;
+  margin-left: 6px;
+}
+.hero-pill-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  margin-left: -10px;
+  box-shadow: 0 12px 24px rgba(15,58,99,0.1);
+}
+.hero-pill-text {
+  color: var(--mid);
+  font-size: 13px;
+  font-weight: 600;
+}
+.hero-stat-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+.hero-stat {
+  background: #fff;
+  border: 1px solid #e2ecec;
+  border-radius: 20px;
+  padding: 22px 24px;
+  text-align: center;
+}
+.hero-stat strong {
+  display: block;
+  font-size: 28px;
+  color: var(--teal);
+  margin-bottom: 6px;
+  font-family: 'DM Serif Display', serif;
+}
+.hero-stat span {
+  color: var(--mid);
+  font-size: 14px;
+  line-height: 1.7;
+}
+.hero-visual-column {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 480px;
+}
+.hero-visual-spot {
+  position: absolute;
+  top: 20%;
+  right: 10%;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  border: 1px dashed rgba(14,163,191,0.35);
+  animation: spin 20s linear infinite;
+  pointer-events: none;
+}
+.hero-image {
+  width: 100%;
+  max-width: 520px;
+  border-radius: 28px;
+  box-shadow: 0 24px 70px rgba(15,58,99,0.14);
+  border: 1px solid rgba(255,255,255,0.65);
+  transform: rotate(2deg);
+  transition: transform .4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.hero-image:hover {
+  transform: rotate(0deg) translateY(-8px);
+}
+
+@media(max-width: 980px) {
+  .home-hero-inner { grid-template-columns: 1fr; gap: 40px; }
+  .hero-visual-column { min-height: 360px; }
+  .hero-stat-row { grid-template-columns: 1fr; }
+}
+
+@media(max-width: 640px) {
+  .home-hero { padding: 60px 18px 40px; }
+  .hero-title { font-size: clamp(32px, 7vw, 44px); }
+  .hero-actions { flex-direction: column; align-items: stretch; }
+  .hero-pill-group { justify-content: center; }
+  .hero-stat { padding: 18px 16px; }
+}
+
 @keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}

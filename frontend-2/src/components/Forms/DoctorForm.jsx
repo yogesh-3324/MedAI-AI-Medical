@@ -1,13 +1,20 @@
 import FileUpload from "../Upload/FileUpload";
+import AutocompleteInput from "./AutocompleteInput";
 
 export default function DoctorForm({ form, setForm, file, setFile }) {
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-      <div className="fade-up-1">
+      <div className="fade-up-1" style={{ position: "relative", zIndex: 50 }}>
         <label style={{ fontSize: 14, fontWeight: 600, color: "#0d1f2d", display: "block", marginBottom: 8 }}>Symptoms <span style={{ color: "#ef4444" }}>*</span></label>
-        <textarea className="input-field" rows={3} placeholder="Describe your symptoms…" value={form.symptoms} onChange={e => set("symptoms", e.target.value)} style={{ resize: "vertical" }} />
+        <AutocompleteInput 
+          className="input-field" 
+          placeholder="e.g. Headache, Nausea, Fever…" 
+          value={form.symptoms} 
+          onChange={e => set("symptoms", e.target.value)} 
+          fieldType="symptoms"
+        />
       </div>
       <div className="fade-up-1">
         <label style={{ fontSize: 14, fontWeight: 600, color: "#0d1f2d", display: "block", marginBottom: 8 }}>Duration</label>
@@ -33,11 +40,17 @@ export default function DoctorForm({ form, setForm, file, setFile }) {
           </select>
         </div>
       </div>
-      <div className="fade-up-2">
+      <div className="fade-up-2" style={{ position: "relative", zIndex: 20 }}>
         <label style={{ fontSize: 14, fontWeight: 600, color: "#0d1f2d", display: "block", marginBottom: 8 }}>Existing Diseases</label>
-        <input className="input-field" placeholder="e.g. Diabetes, Hypertension, or None" value={form.diseases} onChange={e => set("diseases", e.target.value)} />
+        <AutocompleteInput 
+          className="input-field" 
+          placeholder="e.g. Diabetes, Hypertension, or None" 
+          value={form.diseases} 
+          onChange={e => set("diseases", e.target.value)} 
+          fieldType="existing disease"
+        />
       </div>
-      <div className="fade-up-3">
+      <div className="fade-up-3" style={{ position: "relative", zIndex: 10 }}>
         <label style={{ fontSize: 14, fontWeight: 600, color: "#0d1f2d", display: "block", marginBottom: 8 }}>Upload Medical Reports <span style={{ color: "#9bb3b3", fontWeight: 400 }}>(optional)</span></label>
         <FileUpload file={file} setFile={setFile} label="📎 Click to attach report (PDF/Image)" style={{ padding: "20px 24px" }} />
       </div>

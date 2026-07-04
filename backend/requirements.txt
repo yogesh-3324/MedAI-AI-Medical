@@ -7,6 +7,10 @@ python-dotenv==1.0.1
 groq==0.13.1
 sentence-transformers==3.3.1
 
+# Web Search (RAG from internet)
+ddgs>=9.0.0
+httpx>=0.27.0
+
 # Vector DB
 pinecone-client==5.0.1
 

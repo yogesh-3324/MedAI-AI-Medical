@@ -80,6 +80,10 @@ export default function Chat({ showToast }) {
   const [loading, setLoading] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
 
+  // ── Web Search toggle ────────────────────────────────────────────────────
+  // When true, every message is answered using live DuckDuckGo web search
+  const [webSearch, setWebSearch] = useState(false);
+
   // ── File upload preview state ────────────────────────────────────────────────────
   // stagedFile: filename string shown in the preview card
   // uploadStatus: null | 'uploading' | 'done' | 'error'
@@ -293,8 +297,18 @@ export default function Chat({ showToast }) {
     setLoading(true);
 
     try {
-      const aiReply = await analyzeChatMsg(text, currentConv.sessionId, historyForBackend);
-      const aiMsg = { role: "ai", text: aiReply };
+      const { answer, sources, usedWebSearch } = await analyzeChatMsg(
+        text,
+        currentConv.sessionId,
+        historyForBackend,
+        webSearch,
+      );
+      const aiMsg = {
+        role: "ai",
+        text: answer,
+        sources: sources || [],
+        usedWebSearch: usedWebSearch || false,
+      };
 
       setConversations((prev) => {
         const conv = prev.find((c) => c.id === activeId);
@@ -443,6 +457,8 @@ export default function Chat({ showToast }) {
           stagedFile={stagedFile}
           uploadStatus={uploadStatus}
           onDismissStagedFile={() => { setStagedFile(null); setUploadStatus(null); }}
+          webSearch={webSearch}
+          setWebSearch={setWebSearch}
         />
       </div>
     </div>

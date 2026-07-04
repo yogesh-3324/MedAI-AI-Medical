@@ -4,56 +4,46 @@ export default function DetailedFeatures() {
   const steps = [
     {
       step: "01",
-      title: "Real-time AI Diagnosis",
-      desc: "Our vision models process X-rays and imaging documents in seconds, extracting critical impressions and warning flags precisely when you need them.",
-      color: "#0a6e6e"
+      title: "Real-time AI diagnosis",
+      desc: "MedAI analyzes reports and imaging at clinical speed, highlighting key findings and potential red flags for rapid triage.",
+      accent: "#0f4f7c"
     },
     {
       step: "02",
-      title: "Holistic Health Tracking",
-      desc: "From checking drug interactions to validating if your next meal is safe for your current medical conditions, MedAI is your 24/7 personal health guardian.",
-      color: "#f59e0b"
+      title: "Evidence-driven care guidance",
+      desc: "From drug interactions to meal safety, our workflow surfaces clinically relevant recommendations based on current medical context.",
+      accent: "#0284c7"
     },
     {
       step: "03",
-      title: "Bank-Grade Security",
-      desc: "Your data is encrypted end-to-end. We operate on a strict zero-retention policy for your highly sensitive medical files.",
-      color: "#f97316"
+      title: "Secure healthcare compliance",
+      desc: "Data is handled with enterprise-grade encryption and privacy controls, designed for sensitive medical use cases.",
+      accent: "#16a34a"
     }
   ];
 
   return (
-    <section style={{ maxWidth: 1200, margin: "0 auto", padding: "40px 24px 80px" }}>
-      <div style={{ display: "flex", flexDirection: "column", gap: "60px" }}>
-        
-        <div className="fade-up" style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "40px" }}>
-          <div style={{ flex: "1 1 400px" }}>
-            <div className="section-label" style={{ marginBottom: "16px" }}>Why Choose MedAI?</div>
-            <h2 style={{ fontSize: "clamp(32px, 5vw, 48px)", color: "#0d1f2d", lineHeight: 1.1, marginBottom: "24px" }}>
-              Intelligence that <span style={{ color: "#0a6e6e", fontStyle: "italic" }}>cares</span> for you.
-            </h2>
-            <p style={{ fontSize: "17px", color: "#4a6274", lineHeight: 1.7, maxWidth: "500px" }}>
-              Unlike generic search engines, MedAI utilizes advanced multi-modal vision-language 
-              models specifically fine-tuned for healthcare. Whether you are seeking triage advice 
-              or interpreting complex medical reports, we deliver safe, highly-contextualized results.
-            </p>
-          </div>
+    <section className="section-panel">
+      <div className="section-heading">
+        <span className="section-label">What sets us apart</span>
+        <h2>Professional-grade AI workflows for care teams and patients.</h2>
+        <p>
+          MedAI is built for clinical use: precise document analysis, safer medication checks, and structured reporting that feels like a polished healthcare platform.
+        </p>
+      </div>
 
-          <div style={{ flex: "1 1 500px", display: "flex", flexDirection: "column", gap: "24px" }}>
-            {steps.map((s, i) => (
-              <div key={i} className="card-hover" style={{ display: "flex", gap: "20px", background: "#fff", padding: "24px", borderRadius: "16px", border: "1px solid rgba(10,110,110,.05)" }}>
-                <div style={{ fontSize: "24px", fontWeight: "bold", fontFamily: "'DM Serif Display',serif", color: s.color, opacity: 0.5 }}>
-                  {s.step}
-                </div>
-                <div>
-                  <h3 style={{ fontSize: "20px", color: "#0d1f2d", marginBottom: "8px" }}>{s.title}</h3>
-                  <p style={{ fontSize: "15px", color: "#4a6274", lineHeight: 1.6 }}>{s.desc}</p>
-                </div>
-              </div>
-            ))}
+      <div className="step-grid">
+        {steps.map((step) => (
+          <div key={step.step} className="step-card card-hover">
+            <div className="step-badge" style={{ color: step.accent, background: `${step.accent}1a` }}>
+              {step.step}
+            </div>
+            <div>
+              <h3 className="step-title">{step.title}</h3>
+              <p className="step-desc">{step.desc}</p>
+            </div>
           </div>
-        </div>
-
+        ))}
       </div>
     </section>
   );

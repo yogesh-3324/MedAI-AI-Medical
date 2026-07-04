@@ -61,7 +61,7 @@ export default function AutocompleteInput({ value, onChange, placeholder, classN
   };
 
   return (
-    <div style={{ position: "relative", width: "100%" }} ref={dropdownRef}>
+    <div style={{ position: "relative", width: "100%", zIndex: 50 }} ref={dropdownRef}>
       <input
         className={className}
         style={style}

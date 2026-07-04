@@ -16,7 +16,8 @@ from utils.document_parser import parse_uploaded_file
 from utils.chunker import split_text_into_chunks
 from services.embedding_service import embed_texts, embed_query
 from services.pinecone_service import upsert_document_chunks, retrieve_similar_chunks
-from services.groq_service import generate_response
+from services.groq_service import generate_response, generate_web_response
+from services.web_search_service import get_web_context
 
 logger = logging.getLogger(__name__)
 
@@ -111,3 +112,86 @@ def answer_query(
         "used_rag": used_rag,
     }
 
+
+def answer_query_with_web_search(
+    query: str,
+    history: list | None = None,
+) -> dict:
+    """
+    Web-search-augmented query pipeline.
+
+    Steps:
+      1. Search DuckDuckGo for the query.
+      2. Fetch and extract text from top result pages.
+      3. Pass context blocks to Groq LLaMA with a web-specific prompt.
+      4. Return the answer + a list of source citations.
+    
+    CRITICAL BEHAVIOR:
+      - If no relevant context is found (empty context_blocks), explicitly tells user
+        instead of falling back to hallucination via pre-training data.
+      - This prevents the chatbot from making up information about current events.
+
+    Args:
+        query:   The user's question.
+        history: Optional prior conversation turns.
+
+    Returns:
+        {
+            "answer":          str,
+            "context_chunks": [],
+            "used_rag":       False,
+            "used_web_search": True,
+            "sources":        [{"title": str, "url": str}, ...],
+        }
+    """
+    logger.info("🔍 Web search mode initiated — query: %s", query[:80])
+
+    # Step 1 & 2 — Search + fetch context + filter by relevance (>0.68)
+    context_blocks, sources = get_web_context(query)
+
+    # ANTI-HALLUCINATION CHECK: If no relevant context found, refuse to hallucinate
+    if not context_blocks:
+        logger.warning("❌ Web search returned NO relevant context for query: %s", query[:80])
+        answer = (
+            f"❌ **Unable to find current information**\n\n"
+            f"I searched the web for information about '{query}' but could not find reliable, "
+            f"relevant sources to provide a factual answer.\n\n"
+            f"**Why this happens:**\n"
+            f"- The topic may be too new or niche for web coverage\n"
+            f"- Search results didn't contain enough specific detail\n"
+            f"- Information may not be publicly available online\n\n"
+            f"**Recommendation:** Try reformulating your question with more specific details, or consult "
+            f"a healthcare professional for personalized medical advice."
+        )
+        return {
+            "answer":          answer,
+            "context_chunks": [],
+            "used_rag":        False,
+            "used_web_search": True,
+            "sources":         [],
+        }
+
+    logger.info("✓ Retrieved %d relevant context blocks from web search", len(context_blocks))
+
+    # Step 3 — Generate answer via Groq with web context
+    try:
+        answer = generate_web_response(query, context_blocks, history=history)
+    except Exception as exc:
+        logger.exception("Web-search LLM call failed: %s", exc)
+        # We explicitly tell the user that the live search pipeline failed
+        answer = (
+            f"⚠️ **Web Search Pipeline Failed**\n\n"
+            f"An internal error ({type(exc).__name__}) prevented the model from processing the web search results. "
+            f"This often happens if the context window limit was exceeded by too many search results or a long chat history.\n\n"
+            f"**Falling back to base LLM knowledge (may not be current):**\n\n"
+        )
+        answer += generate_response(query, [], history=history)
+        sources = []
+
+    return {
+        "answer":          answer,
+        "context_chunks": [],
+        "used_rag":        False,
+        "used_web_search": True,
+        "sources":         sources,
+    }

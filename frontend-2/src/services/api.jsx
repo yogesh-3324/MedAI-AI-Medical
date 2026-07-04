@@ -34,15 +34,16 @@ export const uploadChatDocument = async (file) => {
 };
 
 /**
- * Send a chat message and receive a RAG-powered answer.
+ * Send a chat message and receive a RAG-powered or web-search-powered answer.
  *
- * @param {string}      message    - User's query text
- * @param {string|null} sessionId  - From uploadChatDocument(); null = general Q&A
- * @param {Array}       history    - Prior turns [{role:"user"|"assistant", content:"..."}]
- * @returns {Promise<string>}      - The AI answer string
+ * @param {string}      message       - User's query text
+ * @param {string|null} sessionId     - From uploadChatDocument(); null = general Q&A
+ * @param {Array}       history       - Prior turns [{role:"user"|"assistant", content:"..."}]
+ * @param {boolean}     useWebSearch  - If true, backend searches the web for live context
+ * @returns {Promise<{answer: string, sources: Array, usedWebSearch: boolean}>}
  */
-export const analyzeChatMsg = async (message, sessionId = null, history = []) => {
-  const body = { message };
+export const analyzeChatMsg = async (message, sessionId = null, history = [], useWebSearch = false) => {
+  const body = { message, use_web_search: useWebSearch };
   if (sessionId) body.session_id = sessionId;
   if (history && history.length > 0) body.history = history;
 
@@ -58,7 +59,11 @@ export const analyzeChatMsg = async (message, sessionId = null, history = []) =>
   }
 
   const data = await res.json();
-  return data.answer; // keep same return shape as the mock so Chat.jsx works unchanged
+  return {
+    answer: data.answer,
+    sources: data.sources || [],
+    usedWebSearch: data.used_web_search || false,
+  };
 };
 
 

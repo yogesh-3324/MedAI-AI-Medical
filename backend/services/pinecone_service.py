@@ -144,7 +144,7 @@ def retrieve_similar_chunks(
             {
                 "text": match.metadata.get("text", ""),
                 "score": match.score,
-                "chunk_index": match.metadata.get("chunk_index", -1),
+                "chunk_index": int(match.metadata.get("chunk_index", -1)),
                 "filename": match.metadata.get("filename", ""),
             }
         )
