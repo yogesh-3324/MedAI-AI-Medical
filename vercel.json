@@ -1,0 +1,8 @@
+{
+  "buildCommand": "cd frontend-2 && npm install && npm run build",
+  "outputDirectory": "frontend-2/dist",
+  "env": {
+    "VITE_CLERK_PUBLISHABLE_KEY": "@clerk_publishable_key",
+    "VITE_API_BASE_URL": "@api_base_url"
+  }
+}
