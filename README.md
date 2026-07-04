@@ -11,18 +11,12 @@ A high-precision, hallucination-free medical research chatbot powered by Groq's 
 - **Ephemeral Pinecone Vector Search**: Chunks and embeds scraped web data on the fly using `sentence-transformers`, temporarily upserts it into a Pinecone Vector Database, and performs strict semantic retrieval.
 - **Strict Numerical Grounding**: Enforces absolute factual accuracy by explicitly verifying numerical claims (OS, PFS, ORR) against retrieved web sources.
 
-### 2. 🩻 Chest X-Ray Analyzer
-A dedicated diagnostic tool utilizing deep learning to assist in evaluating medical imagery.
-- Powered by a CheXNet-based architecture.
-- Streamlined specifically for high-performance lung and chest radiograph analysis.
-- Adaptive localization bounding boxes.
-
-### 3. 🎙️ Consultation Report Generator
+### 2. 🎙️ Consultation Report Generator
 Automates the creation of professional clinical reports directly from doctor-patient conversations.
 - Leverages the **Web Speech API** for live audio transcription.
 - Processes the raw transcript using a specialized Groq LLM to generate structured, professional medical reports automatically.
 
-### 4. 💊 Drug Interaction Checker
+### 3. 💊 Drug Interaction Checker
 Ensures patient safety by cross-referencing pharmaceutical profiles.
 - Features dynamic, scrollable autocomplete suggestions for fast drug entry.
 - Alerts users to potential contraindications and severe interaction risks.
