@@ -1,0 +1,11 @@
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+.env.*
+temp_val_data/
+temp_eval/
+.git/
+.vercel/
