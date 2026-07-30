@@ -22,7 +22,8 @@ export default function AutocompleteInput({ value, onChange, placeholder, classN
         return;
       }
       try {
-        const response = await fetch("http://localhost:8000/api/food/suggest", {
+        const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+        const response = await fetch(`${BASE_URL}/api/food/suggest`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json"

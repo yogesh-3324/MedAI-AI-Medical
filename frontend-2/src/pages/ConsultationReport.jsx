@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import jsPDF from 'jspdf';
 
-const API = 'http://localhost:8000';
+const API = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 function fmtTime(sec) {
   const m = Math.floor(sec / 60).toString().padStart(2, '0');
