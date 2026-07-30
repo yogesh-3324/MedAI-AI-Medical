@@ -1,0 +1,7 @@
+{
+  "name": "medai-workspace",
+  "private": true,
+  "scripts": {
+    "build": "cd frontend-2 && npm install && npm run build"
+  }
+}
