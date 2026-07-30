@@ -61,33 +61,33 @@ Combining **Search-Augmented Generation (SAG)**, **Document RAG**, **Multimodal 
 ```mermaid
 flowchart TD
     subgraph Client["React 18 Frontend (Vite)"]
-        UI[User Interface & Router]
-        Speech[Web Speech API Audio Stream]
-        Clerk[Clerk Auth & Session Management]
+        UI["User Interface & Router"]
+        Speech["Web Speech API Audio Stream"]
+        Clerk["Clerk Auth & Session Management"]
     end
 
     subgraph API["FastAPI Backend Server (:8000)"]
-        Router[API Gateway & Router]
-        TriageRoute[/api/triage]
-        ChatRoute[/api/chat]
-        DrugRoute[/api/drug]
-        FoodRoute[/api/food]
-        DietRoute[/api/diet]
-        ConsultRoute[/api/consultation]
+        Router["API Gateway & Router"]
+        TriageRoute["/api/triage"]
+        ChatRoute["/api/chat"]
+        DrugRoute["/api/drug"]
+        FoodRoute["/api/food"]
+        DietRoute["/api/diet"]
+        ConsultRoute["/api/consultation"]
     end
 
     subgraph Pipeline["Processing & ML Services"]
-        DocParser[PyPDF2 / Tesseract OCR]
-        Embedder[Sentence-Transformers all-MiniLM-L6-v2]
-        WebSearch[DDGS Multi-Query & Authority Ranker]
-        LocalVision[BLIP Image Captioning]
-        DenseNet[PyTorch DenseNet-169 Fracture Model]
+        DocParser["PyPDF2 / Tesseract OCR"]
+        Embedder["Sentence-Transformers all-MiniLM-L6-v2"]
+        WebSearch["DDGS Multi-Query & Authority Ranker"]
+        LocalVision["BLIP Image Captioning"]
+        DenseNet["PyTorch DenseNet-169 Fracture Model"]
     end
 
     subgraph Cloud["External Cloud Infrastructure"]
-        Pinecone[(Pinecone Vector Database)]
-        Groq[Groq LLaMA Inference Engine]
-        Overpass[OpenStreetMap Overpass API]
+        Pinecone[("Pinecone Vector Database")]
+        Groq["Groq LLaMA Inference Engine"]
+        Overpass["OpenStreetMap Overpass API"]
     end
 
     UI -->|HTTP Requests| Router
