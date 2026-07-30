@@ -91,7 +91,7 @@ export default function DoctorCheck({ showToast }) {
             </div>
           )}
           
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 16 }}>
+          <div className="responsive-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 16 }}>
              <div style={{ background: "rgba(255,255,255,0.5)", padding: 16, borderRadius: 12 }}>
                 <strong style={{ display: "block", marginBottom: 8, color: "#0d1f2d" }}>Recommended Actions</strong>
                 <ul style={{ margin: 0, paddingLeft: 20, fontSize: 14, color: "#4a6274", lineHeight: 1.6 }}>

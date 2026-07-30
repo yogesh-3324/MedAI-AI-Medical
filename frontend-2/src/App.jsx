@@ -35,25 +35,14 @@ const ProtectedRoute = ({ children }) => {
   );
 };
 
-/* ── Consultation Report nav button (rendered inside Router so useNavigate works) ── */
+/* ── Consultation Report nav button Header ── */
 function ConsultationNavButton() {
   const navigate = useNavigate();
   return (
     <button
       id="consultation-recorder-btn"
       onClick={() => navigate('/consultation')}
-      style={{
-        display: 'flex', alignItems: 'center', gap: 8,
-        padding: '9px 16px',
-        background: 'linear-gradient(135deg,#0a6e6e,#0d8a8a)',
-        color: '#fff', border: 'none', borderRadius: 12,
-        fontSize: 13, fontWeight: 700, cursor: 'pointer',
-        boxShadow: '0 4px 14px rgba(10,110,110,.35)',
-        transition: 'all .2s ease',
-        fontFamily: "'DM Sans',sans-serif", whiteSpace: 'nowrap',
-      }}
-      onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 20px rgba(10,110,110,.45)'; }}
-      onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)';    e.currentTarget.style.boxShadow = '0 4px 14px rgba(10,110,110,.35)'; }}
+      className="consultation-top-btn"
     >
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
         <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
@@ -61,13 +50,50 @@ function ConsultationNavButton() {
         <line x1="12" y1="19" x2="12" y2="23"/>
         <line x1="8"  y1="23" x2="16" y2="23"/>
       </svg>
-      Generate Consultation Report
+      <span className="consultation-btn-text">Generate Consultation Report</span>
     </button>
   );
 }
 
+/* ── Inner Top Bar with navigate hook ── */
+function TopBar({ isSidebarOpen, setIsSidebarOpen }) {
+  const navigate = useNavigate();
+  return (
+    <div className="top-bar-container">
+      {/* Left: 3-line hamburger menu + brand logo */}
+      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        <button
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          className="hamburger-btn"
+          aria-label="Toggle Navigation"
+        >
+          <span className="hamburger-line"></span>
+          <span className="hamburger-line"></span>
+          <span className="hamburger-line short"></span>
+        </button>
+
+        <div 
+          onClick={() => navigate('/')}
+          style={{ cursor: "pointer", fontSize: "20px", fontFamily: "'DM Serif Display',serif", color: "#0a6e6e", display: "flex", alignItems: "center", gap: "8px" }}
+        >
+          <div style={{ width: 28, height: 28, background: "linear-gradient(135deg,#0a6e6e,#0d8a8a)", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+            </svg>
+          </div>
+          <span className="top-bar-brand-name">MedAI</span>
+        </div>
+      </div>
+
+      {/* Right: Consultation Report nav button */}
+      <ConsultationNavButton />
+    </div>
+  );
+}
+
 function App() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  // Default to closed on mobile screens (<= 900px) so sidebar doesn't overlap content
+  const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 900);
   const { isSignedIn, isLoaded } = useAuth();
   const [showLoginSuccess, setShowLoginSuccess] = useState(false);
   const prevState = useRef(false);
@@ -83,6 +109,17 @@ function App() {
       prevState.current = isSignedIn;
     }
   }, [isSignedIn, isLoaded]);
+
+  // Handle window resize to auto collapse/expand appropriately
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth <= 900) {
+        // Leave sidebar closed on mobile
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
     <Router>
@@ -102,41 +139,9 @@ function App() {
         <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
         <main className="main-content">
-          {/* Top Bar */}
-          <div style={{
-            height: "64px", display: "flex", alignItems: "center",
-            justifyContent: "space-between", padding: "0 24px",
-            position: "sticky", top: 0, zIndex: 10,
-            background: "rgba(255,255,255,0.9)", backdropFilter: "blur(8px)",
-            borderBottom: "1px solid rgba(10,110,110,0.05)"
-          }}>
-            {/* Left: hamburger + logo */}
-            <div style={{ display: "flex", alignItems: "center", gap: 0 }}>
-              <button
-                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                style={{ background: "transparent", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", gap: "5px", padding: "8px" }}
-              >
-                <span style={{ width: "22px", height: "2px", background: "#0a6e6e", borderRadius: "2px", transition: "all 0.3s" }}></span>
-                <span style={{ width: "22px", height: "2px", background: "#0a6e6e", borderRadius: "2px", transition: "all 0.3s" }}></span>
-                <span style={{ width: "16px", height: "2px", background: "#0a6e6e", borderRadius: "2px", transition: "all 0.3s" }}></span>
-              </button>
-              {!isSidebarOpen && (
-                <div style={{ marginLeft: "16px", fontSize: "20px", fontFamily: "'DM Serif Display',serif", color: "#0a6e6e", display: "flex", alignItems: "center", gap: "8px" }}>
-                  <div style={{ width: 28, height: 28, background: "linear-gradient(135deg,#0a6e6e,#0d8a8a)", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
-                    </svg>
-                  </div>
-                  MedAI
-                </div>
-              )}
-            </div>
+          <TopBar isSidebarOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
-            {/* Right: navigate to consultation page */}
-            <ConsultationNavButton />
-          </div>
-
-          <div style={{ padding: "0 24px 24px", height: "calc(100% - 64px)", overflowY: "auto" }}>
+          <div className="main-content-scroll">
             <Routes>
               <Route path="/"            element={<Home />} />
               <Route path="/chat"        element={<ProtectedRoute><Chat /></ProtectedRoute>} />
