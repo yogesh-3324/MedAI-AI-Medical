@@ -139,7 +139,7 @@ function App() {
         <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
         <main className="main-content">
-          <TopBar isSidebarOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
+          <TopBar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
 
           <div className="main-content-scroll">
             <Routes>
