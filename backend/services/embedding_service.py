@@ -4,9 +4,15 @@ Generates dense vector embeddings using a local sentence-transformers model.
 The model is loaded once and cached for the lifetime of the process.
 """
 
+import os
 import logging
 from typing import List
 from functools import lru_cache
+
+# Prevent PyTorch / Tokenizers from spawning excessive threads on Render free tier
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
 
 from config import settings
 
