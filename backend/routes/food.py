@@ -88,7 +88,7 @@ Return ONLY valid JSON in this exact format:
 {{"suggestions": ["Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 6"]}}
 """
         completion = client.chat.completions.create(
-            model="llama-3.1-8b-instant",
+            model=settings.GROQ_MODEL,
             response_format={"type": "json_object"},
             messages=[
                 {"role": "system", "content": "You are a JSON-only medical autocomplete API."},

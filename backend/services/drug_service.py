@@ -79,14 +79,16 @@ def check_drug_safety(drugs: list, allergies: str, report_text: str = "", file_b
                 }
             ]
         })
-        model = "llama-3.2-90b-vision-preview" 
+        from config import settings
+        model = settings.GROQ_MODEL 
     else:
-        logger.info("Text-only data for drug check. Using premium 70B payload.")
+        logger.info("Text-only data for drug check.")
         messages.append({
             "role": "user",
             "content": text_prompt
         })
-        model = "llama-3.3-70b-versatile"
+        from config import settings
+        model = settings.GROQ_MODEL
 
     try:
         completion = client.chat.completions.create(

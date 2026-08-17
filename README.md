@@ -18,10 +18,10 @@ Combining **Search-Augmented Generation (SAG)**, **Document RAG**, **Multimodal 
 ## 🌟 Key Modules & Feature Overview
 
 ### 1. 🤖 MedAI Web-RAG & Document Research Assistant
-* **Live Internet Web-RAG (SAG Pipeline)**: Executes intent-aware queries (`CLINICAL_TRIAL`, `FDA_APPROVAL`, `GENERAL`) over real-time web sources (FDA, ASCO, NEJM, The Lancet, PubMed, NIH).
+* **Live Internet Web-RAG (SAG Pipeline)**: Executes intent-aware queries (`CLINICAL_TRIAL`, `FDA_APPROVAL`, `GENERAL`) over real-time web sources using **Tavily API** (with automatic DuckDuckGo fallback) targeting top authority medical sources (FDA, ADA, ASCO, NEJM, The Lancet, PubMed, NIH).
 * **Document Ingestion Engine**: Dynamically parses PDFs, scanned images (via Tesseract OCR), and text files. Chunks documents and embeds them locally into a vector store.
-* **Ephemeral Pinecone Vector Search**: Chunks scraped web pages and uploaded files, generates 384-dimensional dense embeddings (`sentence-transformers/all-MiniLM-L6-v2`), upserts into isolated session namespaces (`web_rag_*`), and retrieves top semantic matches before deleting the temporary namespace.
-* **Strict Numerical & Grounding Verification**: Enforces verbatim accuracy for clinical trial metrics (OS, PFS, ORR, Hazard Ratios) with mandatory inline source citations (`[Source N]`).
+* **Ephemeral Pinecone Vector Search**: Chunks scraped web pages and uploaded files, generates 384-dimensional dense embeddings (`sentence-transformers/all-MiniLM-L6-v2`), upserts into isolated session namespaces (`web_rag_*`), and retrieves top semantic matches with authority boosting before deleting the temporary namespace.
+* **Strict Numerical & Grounding Verification**: Enforces verbatim accuracy for clinical trial metrics (OS, PFS, ORR, Hazard Ratios) and diagnostic thresholds (e.g. ADA guidelines) with mandatory inline source citations (`[Source N]`).
 
 ### 2. 🎙️ Consultation Report Generator
 * **Voice-to-Clinical Report Pipeline**: Leverages the browser **Web Speech API** for live doctor-patient conversation speech-to-text recording with real-time transcript streaming.
@@ -137,11 +137,11 @@ sequenceDiagram
     User->>Frontend: Submit medical query + Enable Web Search
     Frontend->>Backend: POST /api/chat/message (use_web_search=true)
     Backend->>SAG: Detect intent & rewrite query strings
-    SAG->>SAG: DuckDuckGo search + Domain authority ranking (FDA, NEJM, Lancet, PubMed)
+    SAG->>SAG: Tavily API / DuckDuckGo search + Domain authority ranking (FDA, NEJM, Lancet, PubMed)
     SAG->>SAG: Fetch full HTML/PDF text (up to 8,000 chars per page)
     Backend->>Embed: Chunk text (1200 chars) & generate 384d embeddings
     Backend->>DB: Upsert to temporary namespace (web_rag_<uuid>)
-    Backend->>DB: Vector similarity search (Dynamic threshold: 0.60–0.70)
+    Backend->>DB: Vector similarity search (Authority-boosted dynamic threshold: 0.35–0.48)
     DB-->>Backend: Return Top-K dense relevant chunks
     Backend->>DB: Delete temporary namespace web_rag_<uuid>
     Backend->>LLM: Send anti-hallucination prompt + dense grounded context
@@ -188,10 +188,10 @@ sequenceDiagram
 | **Backend** | API Framework | Python 3.10+, FastAPI, Uvicorn |
 | | Document Parsing | PyPDF2 (PDFs), Tesseract OCR / `pytesseract` (Images) |
 | | HTTP Client | `httpx`, `requests` |
-| **AI & ML** | LLM Inference | Groq API (`llama3-8b-8192`, `llama-3.3-70b-versatile`, `llama-3.2-90b-vision-preview`, `llama-4-scout-17b-16e-instruct`) |
+| **AI & ML** | LLM Inference | Groq API (`groq/compound-mini`, `openai/gpt-oss-120b`, `llama-4-scout-17b-16e-instruct` via dynamic `GROQ_MODEL`) |
 | | Vector Database | Pinecone (Serverless) |
 | | Text Embeddings | `sentence-transformers/all-MiniLM-L6-v2` (384-dim) |
-| | Web Retrieval | DuckDuckGo Search (`ddgs`) |
+| | Web Retrieval | Tavily API (`tavily-python`) with DuckDuckGo Search (`ddgs`) fallback |
 | | Local Vision | HuggingFace Transformers (`Salesforce/blip-image-captioning-base`) |
 | | PyTorch Model | `torchvision.models.densenet169` (Fine-tuned for bone fracture) |
 | **GIS & Geolocation**| Maps Data | OpenStreetMap Overpass API (`overpass-api.de`) |

@@ -110,8 +110,8 @@ def check_food_safety(food_text: str, disease: str, symptoms: str, allergies: st
     ]
     
     logger.info("Text + Image data combined. Using premium 70B payload.")
-    # Upgrade to 70B for clinical reasoning
-    model = "llama-3.3-70b-versatile"
+    from config import settings
+    model = settings.GROQ_MODEL
 
     try:
         completion = client.chat.completions.create(

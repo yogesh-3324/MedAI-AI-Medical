@@ -1,12 +1,13 @@
 import sys
 sys.path.insert(0, '.')
 
-from services.web_search_service import _rewrite_queries, get_web_context
+from services.web_search_service import _rewrite_queries, _detect_intent, get_web_context
 
 q = "what was the most recent FDA approval for a cancer drug in June 2026?"
 
 print("=== REWRITTEN QUERIES ===")
-queries = _rewrite_queries(q)
+intent = _detect_intent(q)
+queries = _rewrite_queries(q, intent)
 for i, qry in enumerate(queries, 1):
     print(f"  {i}. {qry}")
 

@@ -165,7 +165,7 @@ def _detect_intent(query: str) -> str:
     return "GENERAL"
 
 
-def _rewrite_queries(original_query: str, intent: str) -> list[str]:
+def _rewrite_queries(original_query: str, intent: str = "GENERAL") -> list[str]:
     """
     Convert a natural-language query into targeted search strings using Intent Routing.
     """
@@ -224,10 +224,50 @@ def _rewrite_queries(original_query: str, intent: str) -> list[str]:
     return unique
 
 
+import os
+from config import settings
+
 # ─── Core Search ──────────────────────────────────────────────────────────────
 
-def _run_single_search(query: str, max_results: int = 3) -> list[dict]:
-    """Run one DDGS text search. Returns list of {title, href, body} dicts."""
+def _run_tavily_search(query: str, max_results: int = 3, api_key: str = "") -> list[dict]:
+    """
+    Run Tavily API search. Returns list of {title, href, body} dicts.
+    Tavily provides clean, LLM-ready content directly in the 'content' field.
+    """
+    try:
+        import httpx
+        url = "https://api.tavily.com/search"
+        payload = {
+            "api_key": api_key,
+            "query": query,
+            "search_depth": "advanced",
+            "max_results": max_results,
+            "include_answer": False,
+            "include_images": False,
+            "include_raw_content": False
+        }
+        resp = httpx.post(url, json=payload, timeout=10.0)
+        if resp.status_code == 200:
+            data = resp.json()
+            results = []
+            for item in data.get("results", []):
+                results.append({
+                    "title": item.get("title", ""),
+                    "href": item.get("url", ""),
+                    "body": item.get("content", "")
+                })
+            logger.info("Tavily search '%s' -> %d results", query[:60], len(results))
+            return results
+        else:
+            logger.warning("Tavily API returned status %d: %s", resp.status_code, resp.text[:200])
+            return []
+    except Exception as exc:
+        logger.error("Tavily search failed for '%s': %s", query[:60], exc)
+        return []
+
+
+def _run_ddg_search(query: str, max_results: int = 3) -> list[dict]:
+    """Run one DDGS text search fallback. Returns list of {title, href, body} dicts."""
     try:
         from ddgs import DDGS
         time.sleep(0.4)
@@ -238,6 +278,21 @@ def _run_single_search(query: str, max_results: int = 3) -> list[dict]:
     except Exception as exc:
         logger.error("DDGS search failed for '%s': %s", query[:60], exc)
         return []
+
+
+def _run_single_search(query: str, max_results: int = 3) -> list[dict]:
+    """
+    Execute text search query.
+    Uses Tavily API if TAVILY_API_KEY is configured, otherwise falls back to DuckDuckGo (DDGS).
+    """
+    tavily_key = os.getenv("TAVILY_API_KEY") or getattr(settings, "TAVILY_API_KEY", "")
+    if tavily_key and tavily_key.strip() and not tavily_key.startswith("your_"):
+        tavily_results = _run_tavily_search(query, max_results=max_results, api_key=tavily_key.strip())
+        if tavily_results:
+            return tavily_results
+        logger.warning("Tavily search produced no results for '%s', falling back to DDGS...", query[:60])
+
+    return _run_ddg_search(query, max_results=max_results)
 
 
 def _multi_query_search(queries: list[str]) -> list[dict]:

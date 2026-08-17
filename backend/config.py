@@ -8,6 +8,9 @@ class Settings:
     # Groq
     GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "")
 
+    # Tavily Web Search
+    TAVILY_API_KEY: str = os.getenv("TAVILY_API_KEY", "")
+
     # Pinecone
     PINECONE_API_KEY: str = os.getenv("PINECONE_API_KEY", "")
     PINECONE_INDEX_NAME: str = os.getenv("PINECONE_INDEX_NAME", "medai-rag")
@@ -24,7 +27,7 @@ class Settings:
     TOP_K_RESULTS: int = int(os.getenv("TOP_K_RESULTS", "5"))
 
     # Groq model
-    GROQ_MODEL: str = "llama-3.1-8b-instant"
+    GROQ_MODEL: str = os.getenv("GROQ_MODEL", "groq/compound-mini")
 
     def validate(self):
         missing = []

@@ -48,9 +48,7 @@ def _chunk_text(text: str, chunk_size: int = 1500, overlap: int = 200) -> List[s
 def _calculate_dynamic_threshold(query: str) -> float:
     """
     Intelligent threshold selection based on query characteristics.
-    
-    Complex/interpretive queries need lower thresholds to avoid false negatives.
-    Simple factual queries can use higher thresholds for precision.
+    Adjusted for sentence-transformers (all-MiniLM-L6-v2) cosine similarity distributions.
     
     Returns: Relevance score threshold (0.0-1.0)
     """
@@ -58,34 +56,28 @@ def _calculate_dynamic_threshold(query: str) -> float:
     query_length = len(query)
     
     # Keywords indicating interpretive/explanatory questions
-    interpretive_keywords = ["why", "how", "what does", "means", "caused", "reason", "effect", "consequence"]
+    interpretive_keywords = ["why", "how", "what does", "means", "caused", "reason", "effect", "consequence", "recommendation", "recommendations", "criteria", "threshold"]
     # Keywords indicating specific events/news
     event_keywords = ["retracted", "withdrawn", "announced", "approved", "denied", "rejected", "failed", "abandoned"]
     # Keywords for research/clinical interest
-    research_keywords = ["study", "trial", "research", "clinical", "results", "outcome", "efficacy"]
+    research_keywords = ["study", "trial", "research", "clinical", "results", "outcome", "efficacy", "diagnosis"]
     
     # Check query characteristics
     has_interpretive = any(kw in query_lower for kw in interpretive_keywords)
     has_event = any(kw in query_lower for kw in event_keywords)
     has_research = any(kw in query_lower for kw in research_keywords)
     
-    # Determine threshold based on characteristics
+    # Determine threshold based on characteristics (MiniLM cosine similarity ranges: 0.35-0.75)
     if has_event or has_interpretive:
-        # Event-based or interpretive questions need more flexibility
-        # Semantic matching may be looser when asking "why" vs "what is"
-        return 0.60
-    elif has_research and query_length > 70:
-        # Long research questions with interpretive elements
-        return 0.62
+        return 0.40
+    elif has_research and query_length > 50:
+        return 0.42
     elif query_length > 100:
-        # Very detailed/complex queries
-        return 0.64
+        return 0.44
     elif query_length < 25:
-        # Very short, simple queries (higher precision needed)
-        return 0.70
+        return 0.50
     else:
-        # Standard queries
-        return 0.68
+        return 0.45
 
 
 def _get_source_authority_score(url: str) -> int:
@@ -197,7 +189,10 @@ def process_web_context_through_rag(query: str, raw_context_blocks: List[Dict[st
             source_title = source_meta.get("title", "Unknown Source")
             authority_score = _get_source_authority_score(source_url)
             
-            if score >= RELEVANCE_THRESHOLD:
+            # High authority sources (FDA, ADA, NIH, NEJM) get a lower threshold so critical clinical guidelines are preserved
+            effective_threshold = max(0.35, RELEVANCE_THRESHOLD - 0.08) if authority_score <= 2 else RELEVANCE_THRESHOLD
+            
+            if score >= effective_threshold:
                 filtered_results.append({
                     "title": source_title,
                     "url": source_url,
